@@ -12,18 +12,19 @@ function make2DArray(cols, rows) {
 let grid;
 let cols;
 let rows;
-let resolution = 40;
+let resolution = 10;
 
 // Setup function to setup the whole array
-// i is columns, j is rows
+// i is columns ( x axis ), j is rows ( y axis )
 function setup() {
-    createCanvas(400, 400);
+    createCanvas(600, 400);
     cols = width / resolution;
     rows = height / resolution;
+
     grid = make2DArray(cols, rows);
     for (let i = 0; i < cols; i++) {
         for (let j = 0; j < rows; j++) {
-            grid[i][j] = Math.floor(Math.random() * 2);
+            grid[i][j] = floor(random(2));
         }
     }
 }
@@ -33,33 +34,27 @@ function setup() {
 function draw() {
     background(0);
 
-    // let next = make2DArray(cols, rows);
-
-    // //Compute next based on grid
-
-    // grid = next;
-
     //initial 2D Array
     for (let i = 0; i < cols; i++) {
         for (let j = 0; j < rows; j++) {
             let x = i * resolution;
-            let y = j * resolution
+            let y = j * resolution;
             if (grid[i][j] == 1) {
                 fill(255);
-                stroke(0)
-                rect(x, y, resolution-1, resolution-1) 
+                stroke(0);
+                rect(x, y, resolution - 1, resolution - 1); 
             }  
         }
     }
 
+    //Next State
     let next = make2DArray(cols, rows);
 
     //Compute next based on grid
     for (let i = 0; i < cols; i++) {
         for (let j = 0; j < rows; j++) {
-
+            let state = grid[i][j];
             //Count Live Neighbors
-            // let sum = 0;
             // sum += grid[i-1][j+1];//ul
             // sum += grid[i][j+1];//u
             // sum += grid[i+1][j+1];//ur
@@ -68,24 +63,45 @@ function draw() {
             // sum += grid[i][j-1];//b
             // sum += grid[i-1][j-1];//bl
             // sum += grid[i-1][j];//l
-            let neighbors = count(grid, i, j);
-
+            let neighbors = countNeighbors(grid, i, j);
+            
+            //Next state behaves based on these rules 
+            if (state == 0 && neighbors == 3) {
+                next[i][j] = 1;
+            } else if (state == 1 && (neighbors < 2 || neighbors > 3)) {
+                next[i][j] = 0;
+            } else {
+                next[i][j] = state;
+            }
         }
     }
-
     grid = next;
 }
 
-// function countNeighbors(grid, x, y){
-//     let sum = 0;
-//     for (let i = -1; i < 2; i++){
-//         for (let j = -1; j < 2; j++){
-//             sum += grid[i][j];
-//         }
-//     }
-//     sum -= grid[x][y];
-//     return sum;
-// }
+function countNeighbors(grid, x, y){
+    let sum = 0;
+    //iterate through all combinations between the offset count i = -1 and j = -1
+    for (let i = -1; i < 2; i++) {
+        for (let j = -1; j < 2; j++) {
+            //Wrap around
+            //x example
+            //(i + x + cols) % cols
+            //(-1 + 9 + 10) % 10 = 8
+            //(-1 + 0 + 10) % 10 = 9
+            //(-1 + 1 + 10) % 10 = 0
+            //(-1 + 2 + 10) % 10 = 1
+            //(-1 + 3 + 10) % 10 = 2
+            
+            let colWrap = (i + x + cols) % cols;
+            let rowWrap = (j + y + rows) % rows;
+
+            sum += grid[colWrap][rowWrap];
+        }
+    }
+    //removes the cell in question
+    sum -= grid[x][y];
+    return sum;
+}
 
 //Rules for Algorithm
 //Definitions: Neighbors = 8 surrounding cells (ul, u, ur, r, br, b, bl, l)
