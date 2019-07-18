@@ -66,6 +66,13 @@ function draw() {
             let neighbors = countNeighbors(grid, i, j);
             
             //Next state behaves based on these rules 
+                //Rules for Algorithm
+                //Definitions: Neighbors = 8 surrounding cells (ul, u, ur, r, br, b, bl, l)
+                //States: Dead = 0, Live = 1
+                //Next: 
+                //Dead Becomes Live if State(0) had 3 live neighbors
+                //Live Becomes Dead if State(1) had < 2 neighbors or > 3 neighbors
+                //Otherwise, stay the same
             if (state == 0 && neighbors == 3) {
                 next[i][j] = 1;
             } else if (state == 1 && (neighbors < 2 || neighbors > 3)) {
@@ -103,10 +110,3 @@ function countNeighbors(grid, x, y){
     return sum;
 }
 
-//Rules for Algorithm
-//Definitions: Neighbors = 8 surrounding cells (ul, u, ur, r, br, b, bl, l)
-//States: Dead = 0, Live = 1
-//Next: 
-//Dead Becomes Live if State(0) had 3 live neighbors
-//Live Becomes Dead if State(1) had less than 2 neighbors
-//or more than 3 neighbors
